@@ -21,7 +21,7 @@
 #
 #    docker exec -it zipline zipline run -f /projects/my_algo.py --start 2015-1-1 --end 2016-1-1 -o /projects/result.pickle
 #
-FROM python:3.5
+FROM python:3.6.12
 
 #
 # set up environment
@@ -45,7 +45,11 @@ ENV PROJECT_DIR=/projects \
 RUN mkdir ${PROJECT_DIR} \
     && apt-get -y update \
     && apt-get -y install libfreetype6-dev libpng-dev libopenblas-dev liblapack-dev gfortran libhdf5-dev \
-    && curl -L https://downloads.sourceforge.net/project/ta-lib/ta-lib/0.4.0/ta-lib-0.4.0-src.tar.gz | tar xvz
+    && curl -L https://downloads.sourceforge.net/project/ta-lib/ta-lib/0.4.0/ta-lib-0.4.0-src.tar.gz | tar xvz \
+    && cd ta-lib \
+    && ./configure --prefix=/usr \
+    && make \
+    && make install
 
 #
 # build and install zipline from source.  install TA-Lib after to ensure
@@ -57,9 +61,6 @@ WORKDIR /ta-lib
 RUN pip install 'numpy>=1.11.1,<2.0.0' \
   && pip install 'scipy>=0.17.1,<1.0.0' \
   && pip install 'pandas>=0.18.1,<1.0.0' \
-  && ./configure --prefix=/usr \
-  && make \
-  && make install \
   && pip install TA-Lib \
   && pip install matplotlib \
   && pip install jupyter
